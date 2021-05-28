@@ -1,8 +1,8 @@
 # unreal_engine_5_c++_note  
 
-** IN UNREAL EVERYTHING IS INHERITED UObject** 
-** IN UNREAL EVERYTHING IS A ACTOR(all mesh ,visible object etc),AND ACTOR IS INHERITED UObject too**  
-** Pawn is a ACTOR(with base movement etc...),Character is a ACTOR also is a Pawn:Character IS INHERITED PAWN Object**    
+**IN UNREAL EVERYTHING IS INHERITED UObject** 
+**IN UNREAL EVERYTHING IS A ACTOR(all mesh ,visible object etc),AND ACTOR IS INHERITED UObject too**  
+**Pawn is a ACTOR(with base movement etc...),Character is a ACTOR also is a Pawn:Character IS INHERITED PAWN Object**    
 
 ## Example : Using unreal Api(C++)  
 ##### CREATEING A FUNCTION AND VARIABLE IN A CLASS AND EXPOSE TO UE EDITOR  
