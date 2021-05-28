@@ -1,10 +1,10 @@
 # unreal_engine_5_c++_note  
 
-**IN UNREAL EVERYTHING IS INHERITED UObject  
-**IN UNREAL EVERYTHING IS A ACTOR(all mesh ,visible object etc),AND ACTOR IS INHERITED UObject too  
-**Pawn is a ACTOR(with base movement etc...),Character is a ACTOR also is a Pawn:Character IS INHERITED PAWN Object    
+** IN UNREAL EVERYTHING IS INHERITED UObject  
+** IN UNREAL EVERYTHING IS A ACTOR(all mesh ,visible object etc),AND ACTOR IS INHERITED UObject too  
+** Pawn is a ACTOR(with base movement etc...),Character is a ACTOR also is a Pawn:Character IS INHERITED PAWN Object    
 
-##Example : Using unreal Api(C++)  
+## Example : Using unreal Api(C++)  
 ##### CREATEING A FUNCTION AND VARIABLE IN A CLASS AND EXPOSE TO UE EDITOR  
 ```
 DEF:  
@@ -15,13 +15,13 @@ DEF:
  Function/Variable  
 ```  
   
-###EXAMPLE 1:
+### EXAMPLE 1:
 ```
 UPROPERTY(VisibleAnywhere)  
 UStaticMeshComponent* VisualMesh; //a component that will act as our mesh / visual repersentation object (eg:door/rock etc)  
 ```  
   
-#####TO INIT THE OBJECT
+##### TO INIT THE OBJECT
 ```
 //CREATING A SubObj with Mesh Componet and name it Mesh  
 VisualMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"))  
@@ -46,7 +46,7 @@ if (CubeVisualAsset.Succeeded())
 }
 ```
 
-#####WORKING WITH THAT COMMPONENT
+##### WORKING WITH THAT COMMPONENT
 ```
 //Run it for every tick
 //get current actor /component location and store in FVector(x,y,z)
@@ -77,6 +77,6 @@ NewRotation.Yaw += DeltaRotation;
 //setActorLocationAndRotation(FVector,FRotator) ,there are  setActorLocation(FVector) and setActor(FRotator)
 SetActorLocationAndRotation(NewLocation, NewRotation);
 ```
-#####AFTER BUILD AND USE
-**RESULT:  
+##### AFTER BUILD AND USE
+** RESULT:  
 ![alt example1](https://upload.cc/i1/2021/05/28/vstqeY.jpg "example 1")  
