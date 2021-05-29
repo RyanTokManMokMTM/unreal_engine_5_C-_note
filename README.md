@@ -181,4 +181,102 @@ void AFloatingActor::Tick(float DeltaTime)
     SetActorLocationAndRotation(NewLocation, NewRotation);
 }
 ```
+  
+//----------------------------------------------------------------------------------------------------------------//
+//-------------------------------------##EXAMPLE 2##-----------------------------------------------------//
+//----------------------------------------------------------------------------------------------------------------//
 
+**IN THIS EXAMPLE WE WILL WORKING WITH C++ -> BluePrint**  
+**ALLOW AS TO EXTEND OUR C++ CLASS BY Blueprint**  
+  
+*Every time creating a c++ class,will generate the header bollow*
+  ```
+  #include "GameFramework/Actor.h"
+#include "MyActor.generated.h"
+
+UCLASS()
+class AMyActor : public AActor
+{
+    GENERATED_BODY()
+
+public:
+    // Sets default values for this actor's properties
+    AMyActor();
+
+    // Called every frame
+    virtual void Tick( float DeltaSeconds ) override;
+
+protected:
+    // Called when the game starts or when spawned
+    virtual void BeginPlay() override;
+};
+```
+### WHAT iS Beigin Play And Tick?? ###  
+**Begin Play : lets us know the actor has enter the game in a playable state**
+*IS A GOOD PLACE TO INITATE GAMEPLAY LOGIN!*
+  
+ **Tick: It will call one per frame with amount of elapsed time(time tick)**
+ *WE CAN DO SOME RECURRING LOGIN HERE,BUT IT WILl LOSE SOME PERFORMANCE**
+ #### **Make sure disable tick in constructor** ####
+ ```
+  PrimaryActorTick.bCanEverTick = true; //set to false
+ ```
+ 
+ **After we are created a class,we can create a blueprint class base on this class and it will allow use to use its method or variable**
+ 
+#### IF EDITOR CHANGE THE VALUE,HOW CAN WE CHANGE IN C++ TOO(a value that will calculate by a function,not change directly by editor)? ####
+
+##### When editor change the value,engine will notifies target object that something is changed in editor ,so that we need to add a hook(like a method) let engine to call/trigger it when editor in change something(eg:exposing value etc),need to re-calculate the value when trigger.
+
+*A Hook is a function that call by engine when current target is changed by editor*
+```
+#if WITH_EDITOR //needd this for editor only
+Structure for passing pre and post edit change events ：FPropertyChangedEvent
+void AMyActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+    CalculateValues();
+
+    Super::PostEditChangeProperty(PropertyChangedEvent);
+}
+#endif
+```
+
+### We can also make our function expose to blueprint ###
+*BlueprintCallable*
+```
+UFUNCTION(BlueprintCallable, Category="Damage")
+void CalculateValues();
+```
+
+#### Exposing Variable and function ###
+**They are using different Marco**
+  
+`Variable:`
+```
+UPROPERTY(Property)
+exposingVariable;
+```
+  
+`fucntion:`
+```
+UFNNCTION(Property,Category) //Property is always using BlueprintCallable and Category is required!!
+exposingFunction;
+```
+
+*BEST APPROACH IS TO USE C++ FOR BUILDING BASE GAMEPLAY SYSTEM AND PERFORMANCE CRITICAL CODE WITH BLUEPRINT USED TO CUSTOMIZE BEHAVIOUR.*
+
+### TO ALLOW Blueprint implememnt C++ function ###
+**There are 2 property**
+
+1.UFUNCTION(BlueprintImplementableEvent,Category="some event")
+2.UFUNCTION(BlueprintNativeEvent,Categoty="some event")
+
+```
+BlueprintImplememnttableEvent => c++ decalare the function ,but not provide the function body,like c++ but do nothing,this function is designed to be override by a blueprint,let blueprint to implement and override that function
+
+BlueprintNativeEvent =>c++ decalare the function and provide the body,the the body name of function use {ourFunctionName}_Implement to instead of {ourFunctionName},is designed to be override by a blueprint
+```
+**BlueprintImplememnttableEvent can't be implement  
+**BlueprintNativeEvent body function must be followed by this format => name_Implement(){}  
+
+###dive Deep
