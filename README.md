@@ -276,7 +276,7 @@ BlueprintImplememnttableEvent => c++ decalare the function ,but not provide the 
 
 BlueprintNativeEvent =>c++ decalare the function and provide the body,the the body name of function use {ourFunctionName}_Implement to instead of {ourFunctionName},is designed to be override by a blueprint
 ```
-**BlueprintImplememnttableEvent can't be implement  
-**BlueprintNativeEvent body function must be followed by this format => name_Implement(){}  
+**BlueprintImplememnttableEvent can't be implement**  
+**BlueprintNativeEvent body function must be followed by this format => name_Implement(){}**  
 
 ### dive Deep to UE C++
