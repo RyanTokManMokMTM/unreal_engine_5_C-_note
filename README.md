@@ -25,7 +25,7 @@ UStaticMeshComponent* VisualMesh; //a component that will act as our mesh / visu
 ```  
   
 ##### TO INIT THE OBJECT
-```
+```c++
 //CREATING A SubObj with Mesh Componet and name it Mesh  
 VisualMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"))  
   
@@ -50,7 +50,7 @@ if (CubeVisualAsset.Succeeded())
 ```
 
 ##### WORKING WITH THAT COMMPONENT
-```
+```c++
 //Run it for every tick
 //get current actor /component location and store in FVector(x,y,z)
 FVector NewLoaction = GetActorLocation() ;
@@ -86,7 +86,7 @@ SetActorLocationAndRotation(NewLocation, NewRotation);
 
 #### ADDITIONAL FEATRUE  
 **Add 2 more property**  
-```
+```c++
   //Edit any where and blurprint can read and edit,property group as FloatingActor
   UPROPERTY(EditAnywhere,BlurprintReadWrite,Catgory="FloatingActor")
   float FloatSpeed = 20.0f; //by default 20.0f
@@ -96,7 +96,7 @@ SetActorLocationAndRotation(NewLocation, NewRotation);
 
 ```
 ***change the fixed speed to variable***   
-```
+```c++
   NewLocation.Z += DeltaHeight * FloatSpeed; //contorl it by FloatSpeed
   float DeleteRotation = DeltaTime * RotationSpeed; // control it by RotationSpeed
 ```
@@ -106,7 +106,7 @@ SetActorLocationAndRotation(NewLocation, NewRotation);
 ##UNREAL Source code(example)
   
 *FloatingActor.h*  
-```
+```c++
 #pragma once
 
 #include "CoreMinimal.h"
@@ -138,7 +138,7 @@ public:
 
 *FloatingActor.cpp*  
   
-```
+```c++
 #include "FloatingActor.h"
 
 // Sets default values
@@ -190,7 +190,7 @@ void AFloatingActor::Tick(float DeltaTime)
 **ALLOW AS TO EXTEND OUR C++ CLASS BY Blueprint**  
   
 *Every time creating a c++ class,will generate the header bollow*
-  ```
+  ```c++
   #include "GameFramework/Actor.h"
 #include "MyActor.generated.h"
 
@@ -218,7 +218,7 @@ protected:
  **Tick: It will call one per frame with amount of elapsed time(time tick)**
  *WE CAN DO SOME RECURRING LOGIN HERE,BUT IT WILl LOSE SOME PERFORMANCE**
  #### **Make sure disable tick in constructor** ####
- ```
+ ```c++
   PrimaryActorTick.bCanEverTick = true; //set to false
  ```
  
@@ -229,7 +229,7 @@ protected:
 ##### When editor change the value,engine will notifies target object that something is changed in editor ,so that we need to add a hook(like a method) let engine to call/trigger it when editor in change something(eg:exposing value etc),need to re-calculate the value when trigger.
 
 *A Hook is a function that call by engine when current target is changed by editor*
-```
+```c++
 #if WITH_EDITOR //needd this for editor only
 Structure for passing pre and post edit change events ：FPropertyChangedEvent
 void AMyActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
@@ -252,13 +252,13 @@ void CalculateValues();
 **They are using different Marco**
   
 `Variable:`
-```
+```c++
 UPROPERTY(Property)
 exposingVariable;
 ```
   
 `fucntion:`
-```
+```c++
 UFNNCTION(Property,Category) //Property is always using BlueprintCallable and Category is required!!
 exposingFunction;
 ```
@@ -312,7 +312,7 @@ BlueprintNativeEvent =>c++ decalare the function and provide the body,the the bo
 **Actor components composition is done by Actor RootComponent，and RootComponent is contain a single USceneCompoent**
 *USceneceComponent allow actor to translation , rotation and scale*  
   
-#####AActor event call
+##### AActor event call
 * Begin Play : Called it when Actor is first come into UEWorld(spaning) during gameplay
 * Tick : Called it once per frame
 * EndPlay : Called it when Actor is leaving the UEWorld(Destory)
@@ -320,8 +320,8 @@ BlueprintNativeEvent =>c++ decalare the function and provide the body,the the bo
 **Actor lifecycle :Actor loaded into existence(BeginPlay),the level is unloaded and the actor is destoryed**
 **Spawning Actor is more complicated than creating a actor：need to be registered with variety of runtime system(when to spawn, location ,rotation and so on)**
 **UWorld Provide a member to spawn actor**
-```
-The process of creating a new instance of an Actor
+``` c++
+//The process of creating a new instance of an Actor
 AActor* UWorld::SpawnActor
 (
     UClass*         Class,
@@ -346,11 +346,26 @@ AActor* UWorld::SpawnActor
 //Allow use to perform some logic before actor go into garbage collection
 AACtor::Destory ->calling EndPlay method
 ```
-** We can also control actor life(how long does actor exist) **
-```
+**We can also control actor life(how long does actor exist)**
+```c++
 //Set the lifeSpan,set a time to control
 AActor::SetLifeSpanSet 
 //When time has expired, it will automatically Destory the actor
 //the lifespan of this actor.
 ```
+  
+### UActorComponent
+**Actor Components have their own behaviors**
+**Actor Components provide responsible for functionality that across different type of Actor**  
+**An Actor can have many Actor Components and Actor performance a individual tasks for this actor overall the roles**  
+**Actor Component can be attached to other components**  
+**Actor Component can only attached to one parnent ,but it may have many child Components attached to itself**  
+*A tree hierarchy of actor components*  
+  
+#### **A relationship between actor and actor component** ####
+*Actor ask question and Actor component to answer the question(actor tell component to do the task,component might do the task)*
+  
+**RootComponent is the top-level component of tree hieranrchy**  
+**Ticking is a component are tigger the tick function of the owning Actor Tick Function**  
 
+**
