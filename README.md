@@ -368,4 +368,18 @@ AActor::SetLifeSpanSet
 **RootComponent is the top-level component of tree hieranrchy**  
 **Ticking is a component are tigger the tick function of the owning Actor Tick Function**  
 
-**
+![Alt text](https://upload.cc/i1/2021/05/30/dychkL.jpg "3 personal component hierarchy")
+*Actor with those components:RootComponnent:CapsuleComponent ->3 children(ArrowComponent,Mesh,FirstPersonCameraComponent[1 child: Mesh1p])*
+![Alt text](https://upload.cc/i1/2021/05/30/Capzm4.jpg"3 personal component hierarchy")
+*DEMO For those components*
+
+### UStruct
+**UStruct do not extends from any class and used to make our struct**
+```c++
+//To make our struct and UE will do a base work for us
+UStrcut()
+```
+  
+**UStruct do not have grabage collection, we need to manage UStrcut lifecycle ourself**
+**In UStrcut the type must be UObject reflection type to support for editing in UE Editor,Blueprint...**
+
