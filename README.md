@@ -370,7 +370,7 @@ AActor::SetLifeSpanSet
 
 ![Alt text](https://upload.cc/i1/2021/05/30/dychkL.jpg "3 personal component hierarchy")  
 *Actor with those components:RootComponnent:CapsuleComponent ->3 children(ArrowComponent,Mesh,FirstPersonCameraComponent[1 child: Mesh1p])*
-![Alt text](https://upload.cc/i1/2021/05/30/Capzm4.jpg "3 personal component hierarchy")
+![Alt text](https://upload.cc/i1/2021/05/30/Capzm4.jpg "3 personal component hierarchy")  
 *DEMO For those components*
 
 ### UStruct
