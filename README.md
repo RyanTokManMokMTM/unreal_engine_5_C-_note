@@ -279,4 +279,78 @@ BlueprintNativeEvent =>c++ decalare the function and provide the body,the the bo
 **BlueprintImplememnttableEvent can't be implement**  
 **BlueprintNativeEvent body function must be followed by this format => name_Implement(){}**  
 
-### dive Deep to UE C++
+# dive Deep to UE C++
+## Unreal Gameplay Classes:Object,Actors and Components  
+**4 Main class types dervie from major gameplay classes**  
+* UObject
+* AActor
+* UActorComponet
+* UStruct
+
+### Unreal Object(UObject)  
+**UObject is base building block in Unreal**  
+**UObject is couple with UClass**  
+**UObject and UClass provide some important services**  
+* Reflection of properties and methods
+  * UPROPERTY AND UFUNCTION (UClass)
+* Serializetoin of properties => what is that think??????????
+* Garbage Collection (a Rubbish collection)
+* Finding Obj by name 
+* Configurable value for porperty
+* Newworking support
+  
+#### Each class in Unreal is derives from UObject*
+#### Each class has a singleton(single/once) UClass instance for providing mata services {What UObject will look like, what property method etc are available ...}
+### *Each gameplay calss(object) lifectime, the root is UObject and UClass*  
+*Not involve directly deriving from UObject but instead from AActor and UActorComponent(working with that)*
+  
+### AACtor
+**AACtor is a UOject,a part of the gameplay experence**  
+**AACtor can either placed by us or gamepley system and destory through gameplay code(c++ or blueprint) by grabage collection**  
+**Everything in our level is AACtor.Any Object extended from this class can place in the level**  
+**Actor can have their own behaviour and it can have a component hierarchy of Actor components(through composition)**
+**Actor components composition is done by Actor RootComponent，and RootComponent is contain a single USceneCompoent**
+*USceneceComponent allow actor to translation , rotation and scale*  
+  
+#####AActor event call
+* Begin Play : Called it when Actor is first come into UEWorld(spaning) during gameplay
+* Tick : Called it once per frame
+* EndPlay : Called it when Actor is leaving the UEWorld(Destory)
+
+**Actor lifecycle :Actor loaded into existence(BeginPlay),the level is unloaded and the actor is destoryed**
+**Spawning Actor is more complicated than creating a actor：need to be registered with variety of runtime system(when to spawn, location ,rotation and so on)**
+**UWorld Provide a member to spawn actor**
+```
+The process of creating a new instance of an Actor
+AActor* UWorld::SpawnActor
+(
+    UClass*         Class,
+    FName           InName,
+    FVector const*  Location,
+    FRotator const* Rotation,
+    AActor*         Template,
+    bool            bNoCollisionFail,
+    bool            bRemoteOwned,
+    AActor*         Owner,
+    APawn*          Instigator,
+    bool            bNoFail,
+    ULevel*         OverrideLevel,
+    bool            bDeferConstruction
+)
+
+```
+*WHEN ACTOR IS DESTOPRY, GRABAGE COLLECTION WILL COLLECT THE DESTORY OBJECT*
+
+**Other than spawing, we can call destory to destory the actor**
+```
+//Allow use to perform some logic before actor go into garbage collection
+AACtor::Destory ->calling EndPlay method
+```
+** We can also control actor life(how long does actor exist) **
+```
+//Set the lifeSpan,set a time to control
+AActor::SetLifeSpanSet 
+//When time has expired, it will automatically Destory the actor
+//the lifespan of this actor.
+```
+
