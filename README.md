@@ -383,3 +383,16 @@ UStrcut()
 **UStruct do not have grabage collection, we need to manage UStrcut lifecycle ourself**
 **In UStrcut the type must be UObject reflection type to support for editing in UE Editor,Blueprint...**
 
+### Unreal Reflection System  
+##### What is Reflection System?
+**Reflection System is a implementation of reflection that enable dynamic feature in Unreal**
+* Garbage collection
+* serialization
+* networking replication
+* BP/C++ Communication
+**We need to use a correct markup，otherwise Unreal will ignore the data and not generate the reflection data**
+
+*Reflection markup*
+* UCLASS
+* USTRCUT
+* 
