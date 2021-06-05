@@ -393,6 +393,104 @@ UStrcut()
 **We need to use a correct markup，otherwise Unreal will ignore the data and not generate the reflection data**
 
 *Reflection markup*
-* UCLASS
-* USTRCUT
-* 
+* *UCLASS***Tell unreal to generate a reflection data for a class, the class must derive from UObject(top level obj in unreal)**
+* *USTRCUT*:**Tell unreal to generate a reflection data for a struct(UStrcut type must be the sported type in unreal）** 
+* *GENERATE BODY*: **Unreal Relaces this with all necessary boilerplate code that get generated for the type(會生成type必要的boilerplate code)** 
+* *UPROPERTY*:**Enable a member variable of a UClass or UStruct to be used as a UPROPERTY. UPROPERTY has many uses, not only expose variable to editor and blueprint**
+* *UFUNTION*: **Enable a class mehod of a UClass or UStruct to be used as a UFUNCTION. A UFUNCTION can allow the class method to be called form a Blurprints.**
+
+```c++
+#include "MyObject.generated.h" //this header file=> unreal will put all the reflection data into this file, we must include it at the end of the header file
+
+UClass(Blueprintable)
+class UMyObject : public UObject{
+   GENERATED_BODY() 
+   
+ public:
+  MyUObject();
+
+  UPROPERTY(BlueprintReadOnly, EditAnywhere)
+  float ExampleProperty;
+
+  UFUNCTION(BlueprintCallable)
+  void ExampleFunction();
+
+}
+```
+*All marco of reflection can put some additional specifiers*  
+```c++
+UCLASS(Blueprintable) // UClass have many specifiers -> check document
+  class();
+```
+```c++
+UPROPERTY(BlueprintReadOnly,EditAnywhere) // UPROPERTY have many specifiers -> check document****
+  int x;
+```
+
+```c++
+UFUNCTION(BlueprintCallable) // UPROPERTY have many specifiers -> check document
+  void x();
+```
+*Some basic property*
+* Blueprintable : the class can be extened by Blueprint
+* BlurprintReadOnly : this property can be read only from Blueprint
+* EditAnywhere : this property can be edited bu property windown，on prototype and instance
+* Category: a Section of property in editor， is a helpful for organize the property
+  
+[UCLASS PROPERTY DOC](https://docs.unrealengine.com/4.26/en-US/ProgrammingAndScripting/GameplayArchitecture/Classes/Specifiers/)  
+[UPROPERTY PROPERTY DOC](https://docs.unrealengine.com/4.26/en-US/ProgrammingAndScripting/GameplayArchitecture/Properties/Specifiers/)  
+[UFUNCTION PROPERTY DOC](https://docs.unrealengine.com/4.26/en-US/ProgrammingAndScripting/GameplayArchitecture/Functions/Specifiers/)  
+[USRUCT PROPERTY DOC](https://docs.unrealengine.com/4.26/en-US/ProgrammingAndScripting/GameplayArchitecture/Structs/Specifiers/) 
+   
+### Oject/Actor Iterators: Loop over all object or custom object/actor in gameplay world
+*just like a for loop*
+```c++
+//Using a contaniner will a object type
+//Object iterators 
+for(TObjectIterator<Type> it;it;++it){
+  Type* CurrentObj = *it; //all it is a Type object
+}
+```
+  
+*Example of TOjectIterator to iterate over all instance of UObject*
+```c++
+for (TObjectIterator<UObject> It; It; ++It)
+{
+    UObject* CurrentObject = *It;
+    UE_LOG(LogTemp, Log, TEXT("Found UObject named: %s"), *CurrentObject->GetName());
+}
+```
+*We can only iterate our custom object which is derive from UObject*
+```c++
+for(TObjectIterator<MyOwnClass> it;it;++it){
+  MyOwnClass* currentObj = *it;
+  UE_LOG(LogTemp,Log,TEXT("object name: %s"),*currentObj->GetName());
+}
+```
+**Warnning: Using Iterator**
+##### this will lead to unexpedted result: it may return all UObject instaces created for game world instance
+```
+Using object iterators in PIE (Play In Editor) can lead to unexpected results. Since the Editor is loaded, the object iterator will return all UObject instances created for your game world instance, in addition to those that are just being used by the Editor.
+```
+
+**AACtor interate is the same way as UObject interate ,but class must deride from AActor**  
+*Loop over all actor ，we can get the actor from some world*
+```c++
+APlayerController* MyPC = GetMyPlayerControllerFromSomewhere();
+UWorld* World = MyPC->GetWorld();
+
+//loop over the actor from current player contoller world
+//we can using GetWorld() to get  UWorld object
+for (TActorIterator<AEnemy> It(World); It; ++It)
+{
+    // ...
+}
+```
+*AActor is derive from UOject , we can only use TObjectiterator to instead*  
+*But we need to take care about PIE issue (play in editor,editor is loaded,everything is UObject)*
+
+
+
+
+
+ 
