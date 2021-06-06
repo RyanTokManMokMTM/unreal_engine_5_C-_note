@@ -489,8 +489,105 @@ for (TActorIterator<AEnemy> It(World); It; ++It)
 *AActor is derive from UOject , we can only use TObjectiterator to instead*  
 *But we need to take care about PIE issue (play in editor,editor is loaded,everything is UObject)*
 
+### Memory Management And Garbage Collection
 
+**Grabage Collection(a subclass of UObject)**
+#### What will GC system do ？
+*UE is using reflection system to implement the system, this system help us to manage our memory. We will not have to manually mamage deleting the UObject instance, just need to maintain valid reference to them(enable GC ,class must derive from UObject).*
+```c++
+//it will atuomatically using GC system
+UCLASS()
+class Mytype:public UObject{ //derive from UObject
+  GENERATED_BODY();
+};
+```
+*In GC,has a **root set** for contain a list of object*  
+*Object in the root set, will not be garbage collected as long as there is a path of references from an object in root set to the object question(that mean that object stil being used, still exist)*  
+*If there are not such path of reference from an object in root set to the object, it will be garbage collected(deleting the object) in the next interval(the GC system next time will tigger that)*  
+*GC system will be run at centain interval by engin*  
+###### example will be garbage collected
+```c++
+void CreateDoomedObject()
+{
+    // this pointer isn't the referenc of root set
+    // it will be grabage collected
+    MyGCType* DoomedObject = NewObject<MyGCType>();
+}
+```
+**Only variable pointer stored in a UPROPERTY and container class will add to GC root set， otherwise the garbage collector will detect that this object is unreachable ,and will be deleted** 
+```
+//BECAREFUL THAT GC SYSTEM ANY USEING OBJECT MUST IN ROOT SET CONTAINER
+```
 
+##### Actor and Garbage Collection
+**AActor is derive from UObject, will automatically in root set**
+**Actor is not a Garbage Collection, if want to remove the Actor(withot ending the level), we will need to call *destory()* function and it will be removed immediately and it will fully deleted during the next garbage collection interval**  
+###### example gc pointer(in root set) and not gc pointer(not in root set)
+```c++
+UCLASS()
+class AMyActor : public AAcotor{
+  GENERATE_BODY()
+  
+  public:
+    UPROPERTY()
+      MyCGType* SafeObj; // will automatically add to root set(using UPROPERTY)
+    
+    MyCGType* DoomObj; // will be garbage collected(not in root set)-> collector not know it is being referenced
+    
+    AMyActor(const FObjectInitializer& ObjectInitializer)
+        : Super(ObjectInitializer)
+    {
+        SafeObject = NewObject<MyGCType>();
+        DoomedObject = NewObject<MyGCType>();
+    }
+};
+
+//spawn our actor at a location and rotation
+void SpawnMyActor(UWorld* World, FVector Location, FRotator Rotation)
+{
+    World->SpawnActor<AMyActor>(Location, Rotation);
+}
+```
+
+**When UObject is garbage collected, all UPROPERTY references will set to null(eg:SafeType = nullptr),so we can check the object is garbage collected or not for safe**
+```c++
+//using this to make us sage
+if(MyActor->safeObj != nullprt){
+  //the object is not being removed
+}
+```
+
+*when we call destory(), that obj is not removed yet until garbage collection run again*
+```c++
+// we can check the object is waiting to delete
+bool IsPendingKill() const // if return ture mean it will be deleted when garbage collection run again in next interval
+```
+
+#### USTRUCT CANNOT BE GARBAGE COLLECTED!!!
+
+#### How about we are using normal c++ class that not deride from UObject, how to prevent Garbage Collection?
+
+**We need to derive from *FGCObjec* and override *AddReferencedObjects* method**
+***FGCObject** provide the method**AddReferencedObjects** ,and a parameter **FReferenceCollector& Collector** will manually add a hard reference to the UObject*
+**It will not in garbage collection, when it destory ,will call destructor to delete it**
+```c++
+class FMyNormalClass : public FGCObject //derive rom FCGObject
+{
+public:
+    UObject* SafeObject;
+
+    FMyNormalClass(UObject* Object)
+        : SafeObject(Object)
+    {
+    }
+    
+    //Override AddReferenceObject and add the Collector
+    void AddReferencedObjects(FReferenceCollector& Collector) override
+    {
+        Collector.AddReferencedObject(SafeObject);
+    }
+};
+```
 
 
  
