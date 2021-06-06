@@ -278,7 +278,7 @@ BlueprintNativeEvent =>c++ decalare the function and provide the body,the the bo
 ```
 **BlueprintImplememnttableEvent can't be implement**  
 **BlueprintNativeEvent body function must be followed by this format => name_Implement(){}**  
-
+---
 # dive Deep to UE C++
 ## Unreal Gameplay Classes:Object,Actors and Components  
 **4 Main class types dervie from major gameplay classes**  
@@ -382,7 +382,7 @@ UStrcut()
   
 **UStruct do not have grabage collection, we need to manage UStrcut lifecycle ourself**
 **In UStrcut the type must be UObject reflection type to support for editing in UE Editor,Blueprint...**
-
+---
 ### Unreal Reflection System  
 ##### What is Reflection System?
 **Reflection System is a implementation of reflection that enable dynamic feature in Unreal**
@@ -441,7 +441,7 @@ UFUNCTION(BlueprintCallable) // UPROPERTY have many specifiers -> check document
 [UPROPERTY PROPERTY DOC](https://docs.unrealengine.com/4.26/en-US/ProgrammingAndScripting/GameplayArchitecture/Properties/Specifiers/)  
 [UFUNCTION PROPERTY DOC](https://docs.unrealengine.com/4.26/en-US/ProgrammingAndScripting/GameplayArchitecture/Functions/Specifiers/)  
 [USRUCT PROPERTY DOC](https://docs.unrealengine.com/4.26/en-US/ProgrammingAndScripting/GameplayArchitecture/Structs/Specifiers/) 
-   
+---
 ### Oject/Actor Iterators: Loop over all object or custom object/actor in gameplay world
 *just like a for loop*
 ```c++
@@ -488,7 +488,7 @@ for (TActorIterator<AEnemy> It(World); It; ++It)
 ```
 *AActor is derive from UOject , we can only use TObjectiterator to instead*  
 *But we need to take care about PIE issue (play in editor,editor is loaded,everything is UObject)*
-
+---
 ### Memory Management And Garbage Collection
 
 **Grabage Collection(a subclass of UObject)**
@@ -588,6 +588,110 @@ public:
     }
 };
 ```
+---
+### Class Name Prefixes (Unreal provide tool that generate code for us -> we need to match tha class name(case some error or warning if the class name not match)) ###
 
+*Following rule:*
+```
+AActor class : prefix with A = AmyActor/AactorComponent/AactorController etc
+UObject class : prefix with U = UCompoent etc
+Enums : prefix with **E** = EmyEnumType
+Interface class: prefix wit I = IAbilitySystemInterface etc
+Template class : prefix with T = TArray<type>(Template class for array),TObjectIterator<type> etc
+Everything else : prefix with letter F = FString(String),FVector(Vector),FRotator(Rtator) etc
+```
+<!-- * *AActor* class : prefix with **A** = AmyActor/AactorComponent/AactorController etc
+* *UObject* class : prefix with **U** = UCompoent etc
+* *Enums* : prefix with **E** = EmyEnumType
+* *Interface* class: prefix wit **I** = IAbilitySystemInterface etc
+* *Template* class : prefix with **T** = TArray<type>(Template class for array),TObjectIterator<type> etc
+* *Everything* else : prefix with letter **F** = FString(String),FVector(Vector),FRotator(Rtator) etc -->
 
- 
+```
+ A for Actor,U for UObject,E for Enums ,I for Interface ,T for Template ,F for other
+```
+---
+### Numeric Type in Unreal
+**INTERGET**  
+*Sign/Unsign INT with 8/16/34/64 bits*
+* int8/Uint8
+* int16/uint16
+* int32/uint32
+* int64/int64
+
+*Floating Piont(c++ standard)*
+* float
+* double
+
+```c++
+//This function can help use to find to limit range for those value type
+//TNumericLimts<T>
+template<typename NumericType>
+struct TNumericLimits
+
+//is a heppler  class to return its limit
+TNumericLimits< const NumericType >
+TNumericLimits< const volatile NumericType >
+TNumericLimits< double >
+TNumericLimits< FFrameNumber >
+TNumericLimits< float >
+TNumericLimits< int16 >
+TNumericLimits< int32 >
+TNumericLimits< int64 >
+TNumericLimits< int8 >
+TNumericLimits< uint16 >
+TNumericLimits< uint32 >
+TNumericLimits< uint64 >
+TNumericLimits< uint8 >
+TNumericLimits< volatile NumericType >
+```
+  
+**String(Unreal provide serval different classes for wroking with Sting)**
+*FString(like std::String): mutable string type*
+```c++
+  //Using TEXT marco for text
+  FString Mystr = TEXT("Hello Unreal");
+```
+  
+*FText(Similar to FString ,but it is for localizedText)*
+```c++
+ //using NSLOCTEXT marco for the text
+ //macro takes a namespace, key, and a value for the default language:
+ FText MyText = NSLOCTEXT("Game UI", "Health Warning Message", "Low Health!"); //localize will  different string
+```
+*Using **LOCTEXT Marco** need to define a namespace per file and undefine at bottom of your file*
+```c++
+// In GameUI.cpp
+#define LOCTEXT_NAMESPACE "Game UI" //
+
+//...
+FText MyText = LOCTEXT("Health Warning Message", "Low Health!")
+//...
+
+#undef LOCTEXT_NAMESPACE
+// End of file
+```
+
+*FName(Used for comparing and store in memory. Compare FName is for its index notdo a character-by-character comparison.Use this to store the string ,if the string is need to be comparison!)*
+**IF WE ALWAYS USE SAME STRING,WE CAN USE FNAME,->It's stroing in memory  and mapping with Index**
+
+*TCHAR(Used to store a character)*
+```c++
+TCHAR character('a');
+```
+*Some function is provide by FString*
+```c++
+  FString Str1 = TEXT("World");
+  int32 Val1 = 123;
+  FString Str2 = FString::Printf(TEXT("Hello, %s! You have %i points."), *Str1, Val1);
+```
+*Some function is provide by FChar*
+```c++
+  TCHAR Upper('A');
+  TCHAR Lower = FChar::ToLower(Upper); // 'a'
+```
+```
+NOTE:
+def of TChar : TChar<TCHAR>
+an array of TCHAR type
+```
