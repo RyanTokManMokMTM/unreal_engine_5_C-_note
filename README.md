@@ -979,6 +979,7 @@ for (auto& KVP : NameToActorMap)
             && LHS.ExampleProperty2 == RHS.ExampleProperty2;
     }
 };
+```
 ```c++  
   TSet<Mycalss> set;
   TMap<Myclass : xxx> map;
@@ -986,3 +987,4 @@ for (auto& KVP : NameToActorMap)
   //but if we are using the key as a pointer
   //implement the uint32 GetTypeHash(const FMyClass& MyClass) as well
 ```
+---End
