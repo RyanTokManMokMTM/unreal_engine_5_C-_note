@@ -987,4 +987,4 @@ for (auto& KVP : NameToActorMap)
   //but if we are using the key as a pointer
   //implement the uint32 GetTypeHash(const FMyClass& MyClass) as well
 ```
----End
+--- 
