@@ -695,3 +695,294 @@ NOTE:
 def of TChar : TChar<TCHAR>
 an array of TCHAR type
 ```
+---
+### Container(Classes to store collection of data)
+*Most common classes **TArray TMap TSet** ,these classes are dynamically sized，it will grow to whatevery size we need*
+  
+##### TArray(like std::vector in c++,but provide more functionailty)
+*A container as array with a type*
+```c++
+//TArray stand for Template() Array
+
+//Array the containe AActor
+TArray<AActor*> ActorArray = GetActorArrayFromSomewhere();
+
+// Tells how many elements (AActors) are currently stored in ActorArray.
+int32 ArraySize = ActorArray.Num(); //get the length of TArray
+
+// TArrays are 0-based (the first element will be at index 0)
+int32 Index = 0;
+// Attempts to retrieve an element at the given index
+AActor* FirstActor = ActorArray[Index]; //access from a index like array 0-n-1
+
+// Adds a new element to the end of the array
+AActor* NewActor = GetNewActor();
+ActorArray.Add(NewActor); //like array.push(element)
+
+// Adds an element to the end of the array only if it is not already in the array
+//this function will only add the not exist element in the array
+ActorArray.AddUnique(NewActor); // Won't change the array because NewActor was already added
+
+// Removes all instances of 'NewActor' from the array
+ActorArray.Remove(NewActor); //like array.remove(element)
+
+// Removes the element at the specified index
+// Elements above the index will be shifted down by one to fill the empty space
+ActorArray.RemoveAt(Index); //like array.removeAtIndex(index)
+//after remove , the array will sort it again
+
+// More efficient version of 'RemoveAt', but does not maintain order of the elements
+ActorArray.RemoveAtSwap(Index);
+//this remove functiov won't sort it again,just replace the last element to current index
+//more efficient->use it when the order is not required
+
+// Removes all elements in the array
+ActorArray.Empty(); //remove add element in that array
+```
+  
+**Benefit of TArray: Its elements can have garbarge collected,if Tarray is stored UOject-derive pointers**
+```c++
+UCLASS()
+class UMyClass : UObject
+{
+    GENERATED_BODY();
+
+    // ...
+
+    UPROPERTY()
+    AActor* GarbageCollectedActor;
+
+    UPROPERTY() //AActor is dervide from UObject, so AAcotr pointer can be garbage collected
+    TArray<AActor*> GarbageCollectedArray;
+
+    TArray<AActor*> AnotherGarbageCollectedArray;
+};
+```
+##### TMap(Key:value pairs , is a dynamically sized(like std::map))
+```c++
+  TMAP<int,string> myMap; ,just like JSON or Dictionary
+```
+*Example using TMAP*
+```c++
+ //a grid-based board game
+ enum class EPieceType
+{
+    King,
+    Queen,
+    Rook,
+    Bishop,
+    Knight,
+    Pawn
+};
+
+struct FPiece
+{
+    int32 PlayerId;
+    EPieceType Type;
+    FIntPoint Position;
+
+    FPiece(int32 InPlayerId, EPieceType InType, FIntVector InPosition) :
+        PlayerId(InPlayerId),
+        Type(InType),
+        Position(InPosition)
+    {
+    }
+};
+
+//this calss is using TMap to store a FPiece with a Integer point
+class FBoard
+{
+private:
+
+    // Using a TMap, we can refer to each piece by its position
+    TMap<FIntPoint, FPiece> Data;
+
+public:
+    bool HasPieceAtPosition(FIntPoint Position)
+    {
+        //change TMap has contain something at this postion
+        return Data.Contains(Position);
+    }
+    FPiece GetPieceAtPosition(FIntPoint Position)
+    {
+        //get TMap data from this position
+        return Data[Position];
+    }
+
+    void AddNewPiece(int32 PlayerId, EPieceType Type, FIntPoint Position)
+    {
+        //add data to TMap with key of position with newPiece
+        FPiece NewPiece(PlayerId, Type, Position);
+        Data.Add(Position, NewPiece);
+    }
+
+    void MovePiece(FIntPoint OldPosition, FIntPoint NewPosition)
+    {
+        //move a data is stored in TMap to a new Postion
+        FPiece Piece = Data[OldPosition];
+        Piece.Position = NewPosition;
+        Data.Remove(OldPosition);
+        Data.Add(NewPosition, Piece);
+    }
+
+    void RemovePieceAtPosition(FIntPoint Position)
+    {
+        //Remove a paire form TMap of a Position
+        Data.Remove(Position);
+    }
+
+    void ClearBoard()
+    {
+        //clean all key-value pair is stored at the TMap
+        Data.Empty();
+    }
+};
+```
+  
+##### TSet(contain the unique value，only can store unique in the TSet(TArray::AddUnique and Contain(element) )(std::set))
+*TSet has a faster implementations to protect non-unique elements automatically*
+*We can change set element to array : **TSet::Array()** * 
+```c++
+  TSet<AActor*> ActorSet = GetActorSetFromSomewhere();
+
+  int32 Size = ActorSet.Num();
+
+  // Adds an element to the set, if the set does not already contain it
+  AActor* NewActor = GetNewActor();
+  ActorSet.Add(NewActor);
+
+  // Check if an element is already contained by the set
+  if (ActorSet.Contains(NewActor))
+  {
+      // ...
+  }
+
+  // Remove an element from the set
+  ActorSet.Remove(NewActor);
+
+  // Removes all elements from the set
+  ActorSet.Empty();
+
+  // Creates a TArray that contains the elements of your TSet
+  TArray<AActor*> ActorArrayFromSet = ActorSet.Array();
+```
+---
+### Container Iterators
+*There are different method to loop over the container*
+  
+ **Using iterator(Create Iterator for container contain)**
+```c++
+  for(auto Enemy = EnmeySet.CreateIterator(); EnemeyIterator;++EnemeyIterator){
+      //TODO for current iterator(pointer) 
+  }
+```
+*example*
+```c++
+void RemoveDeadEnemies(TSet<AEnemy*>& EnemySet)
+{
+    // Start at the beginning of the set, and iterate to the end of the set
+    for (auto EnemyIterator = EnemySet.CreateIterator(); EnemyIterator; ++EnemyIterator)
+    {
+        // The * operator gets the current element
+        //Iterator is a pointer to current iterare element
+        AEnemy* Enemy = *EnemyIterator;
+        if (Enemy.Health == 0)
+        { 
+            //if current enemy is dead -> remove
+            // 'RemoveCurrent' is supported by TSets and TMaps
+            EnemyIterator.RemoveCurrent(); //only support TMap and TSet
+        }
+    }
+}
+```
+  
+*Operations when using iterators*
+```c++
+  //move forward/backware/by some offset
+  // Moves the iterator back one element
+  --EnemyIterator; //move backword
+
+  // Moves the iterator forward/backward by some offset, where Offset is an integer
+  EnemyIterator += Offset; //move forward by offset
+  EnemyIterator -= Offset; //move backward by offset
+
+  // Gets the index of the current element
+  int32 Index = EnemyIterator.GetIndex(); //get current iterator index
+
+  // Resets the iterator to the first element
+  EnemyIterator.Reset(); //restart the interator to first element
+```
+
+**We can also use For-each loop for the element in container**
+*use it when we just want to loop over the list(iterator provide the operation to control the iterator)*
+```c++
+  //TArray and TSet return the value
+  //TMapr return the key-paire value
+  // TArray
+TArray<AActor*> ActorArray = GetArrayFromSomewhere();
+for (AActor* OneActor : ActorArray)
+{
+    // ...
+}
+
+// TSet - Same as TArray
+TSet<AActor*> ActorSet = GetSetFromSomewhere();
+for (AActor* UniqueActor : ActorSet)
+{
+    // ...
+}
+
+// TMap - Iterator returns a key-value pair
+TMap<FName, AActor*> NameToActorMap = GetMapFromSomewhere();
+for (auto& KVP : NameToActorMap)
+{
+    FName Name = KVP.Key;
+    AActor* Actor = KVP.Value;
+
+    // ...
+}
+```
+```c++
+  //auto keyword does not automatically specify pointers or references,just for normal type(not pointer)
+  //if we want to get reference or pointer ,need to add notation
+  for(auto& ref:TArray<type*>){
+    //now auto is a reference of that element pointer 
+  }
+```
+### Using custom class type and using in TSet or TMap require the use of hash functions internally)
+*We need to provide the hash function in our class,TSet and TMap(key) will reference these hash function* and hash function need to return a Uint32(as a hash code to uniquely identify the object)*
+*Other common type in unreal is  already define their own hash functions.*
+*Every references classes return the uniquely hash code，if some obj is same，they will return the same hash code*
+```c++
+  //example: def our own custom type and implement hash function
+  class FMyClass
+{
+    uint32 ExampleProperty1;
+    uint32 ExampleProperty2;
+
+    // Hash Function
+    
+    friend uint32 GetTypeHash(const FMyClass& MyClass)
+    {
+        // HashCombine is a utility function for combining two hash values.
+        //combine 2 hash code to the third one
+        uint32 HashCode = HashCombine(MyClass.ExampleProperty1, MyClass.ExampleProperty2);
+        return HashCode;
+    }
+
+    // For demonstration purposes, two objects that are equal
+    // should always return the same hash code.
+    bool operator==(const FMyClass& LHS, const FMyClass& RHS)
+    {
+        //if they are equal ,will return same code
+        return LHS.ExampleProperty1 == RHS.ExampleProperty1
+            && LHS.ExampleProperty2 == RHS.ExampleProperty2;
+    }
+};
+```c++  
+  TSet<Mycalss> set;
+  TMap<Myclass : xxx> map;
+  
+  //but if we are using the key as a pointer
+  //implement the uint32 GetTypeHash(const FMyClass& MyClass) as well
+```
